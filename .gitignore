@@ -1,0 +1,69 @@
+# ----------------------
+# Node modules
+# ----------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ----------------------
+# Environment variables
+# ----------------------
+.env
+.env.*
+!.env.example
+
+# ----------------------
+# Logs
+# ----------------------
+logs
+*.log
+
+# ----------------------
+# OS files
+# ----------------------
+.DS_Store
+Thumbs.db
+
+# ----------------------
+# Build folders
+# ----------------------
+dist/
+build/
+out/
+
+# ----------------------
+# Vite
+# ----------------------
+.vite/
+
+# ----------------------
+# Coverage
+# ----------------------
+coverage/
+
+# ----------------------
+# IDE / Editor
+# ----------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ----------------------
+# Temporary files
+# ----------------------
+tmp/
+temp/
+
+# ----------------------
+# Cache
+# ----------------------
+.cache/
+
+# ----------------------
+# Lock files (optional)
+# ----------------------
+# Uncomment if you don’t want to commit lock files
+# package-lock.json
+# yarn.lock
