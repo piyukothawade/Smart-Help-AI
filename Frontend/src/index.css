@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #2E073F;
+  --primary: #7A1CAC;
+  --accent: #AD49E1;
+  --light: #EBD3F8;
+}
+
+/* Hide scrollbar but allow scroll */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Glow */
+.glow {
+  box-shadow: 0 10px 40px rgba(122, 28, 172, 0.4);
+}
