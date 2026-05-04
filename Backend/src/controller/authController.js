@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import generateToken from "../utils/generateToken.js";
 
 // REGISTER
@@ -25,6 +26,7 @@ export const registerUser = async (req, res) => {
     name: user.name,
     email: user.email,
     role: user.role,
+    tenantId: user.tenantId,
     token: generateToken(user._id, user.role),
   });
 };
@@ -41,9 +43,31 @@ export const loginUser = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      tenantId: user.tenantId,
       token: generateToken(user._id, user.role),
     });
   } else {
     res.status(401).json({ message: "Invalid credentials" });
+  }
+};
+
+export const createTenantId = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.tenantId) {
+      user.tenantId = crypto.randomUUID();
+      await user.save();
+    }
+
+    res.json({
+      tenantId: user.tenantId,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Error creating tenant ID" });
   }
 };

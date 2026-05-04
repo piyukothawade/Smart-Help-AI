@@ -9,6 +9,7 @@ import ManageTickets from "../features/admin/pages/ManageTickets";
 import AdminTicketDetails from "../features/admin/pages/AdminTicketDetails";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import TicketDetails from "../features/tickets/pages/TicketDetails";
+import WidgetDocs from "../features/docs/pages/WidgetDocs";
 
 
 const AppRoutes = () => {
@@ -33,11 +34,16 @@ const AppRoutes = () => {
           path="/tickets"
           element={<ProtectedRoute><MyTickets /></ProtectedRoute>}
         />
+
         <Route 
         path="/tickets/:id"
          element={<ProtectedRoute><TicketDetails /></ProtectedRoute>}
           />
 
+        <Route
+          path="/docs"
+          element={<ProtectedRoute><WidgetDocs /></ProtectedRoute>}
+        />
 
         <Route
           path="/admin"

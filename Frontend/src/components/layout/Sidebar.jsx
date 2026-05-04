@@ -7,7 +7,8 @@ import {
   Shield,
   ChevronLeft,
   ChevronRight,
-  User
+  User,
+  FileText
 } from "lucide-react";
 import { useState } from "react";
 
@@ -22,6 +23,7 @@ const Sidebar = () => {
     { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { label: "Chat", path: "/", icon: MessageCircle },
     { label: "My Tickets", path: "/tickets", icon: Ticket },
+    { label: "Widget Docs", path: "/docs", icon: FileText },
   ];
 
   if (user?.role === "admin") {
@@ -48,7 +50,10 @@ const Sidebar = () => {
         {/* Menu */}
         <div className="space-y-2">
           {menu.map((item, index) => {
-            const isActive = location.pathname === item.path;
+            const isActive =
+              location.pathname === item.path ||
+              (item.path === "/tickets" &&
+                location.pathname.startsWith("/tickets/"));
             const Icon = item.icon;
 
             return (

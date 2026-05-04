@@ -1,5 +1,5 @@
 import Ticket from "../models/Ticket.js";
-import { classifyTicket } from "../services/aiService.js";
+import { classifyTicket, generateReply } from "../services/aiService.js";
 
 // ✅ CREATE TICKET (AI + REALTIME)
 export const createTicket = async (req, res) => {
@@ -42,9 +42,106 @@ export const createTicket = async (req, res) => {
 };
 
 // ✅ GET ALL TICKETS
+// Create or continue a widget ticket using a tenant ID.
+export const createWidgetTicket = async (req, res) => {
+  try {
+    const rawMessage = req.body.message || req.body.title;
+    const message = typeof rawMessage === "string" ? rawMessage.trim() : "";
+    const visitorId =
+      typeof req.body.visitorId === "string" ? req.body.visitorId.trim() : "";
+
+    if (!message) {
+      return res.status(400).json({
+        success: false,
+        message: "Message is required",
+      });
+    }
+
+    let aiData = { priority: "low", category: "other" };
+
+    try {
+      aiData = await classifyTicket(message);
+    } catch (err) {
+      console.log("AI classification failed for widget ticket");
+    }
+
+    let ticket = await Ticket.findOne({
+      source: "widget",
+      visitorId,
+      tenantId: req.widget.tenantId,
+      status: "open",
+    }).sort({ createdAt: -1 });
+
+    if (ticket) {
+      ticket.messages.push({
+        sender: "user",
+        text: message,
+        createdAt: new Date(),
+      });
+
+      await ticket.save();
+
+      if (global.io) {
+        global.io.emit("ticketUpdated", ticket);
+      }
+    } else {
+      ticket = await Ticket.create({
+        title: message.slice(0, 80),
+        source: "widget",
+        visitorId,
+        tenantId: req.widget.tenantId,
+        user: req.widget.userId,
+        priority: aiData.priority,
+        category: aiData.category,
+        status: "open",
+        messages: [
+          {
+            sender: "user",
+            text: message,
+          },
+        ],
+      });
+
+      if (global.io) {
+        global.io.emit("ticketCreated", ticket);
+      }
+    }
+
+    const reply = await generateReply(message);
+
+    ticket.messages.push({
+      sender: "bot",
+      text: reply,
+      createdAt: new Date(),
+    });
+
+    await ticket.save();
+
+    if (global.io) {
+      global.io.emit("ticketUpdated", ticket);
+    }
+
+    res.status(201).json({
+      success: true,
+      reply,
+      ticket,
+      ticketId: ticket._id,
+    });
+  } catch (err) {
+    console.error("Widget ticket create error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Error creating widget ticket",
+    });
+  }
+};
+
+// âœ… GET ALL TICKETS
 export const getTickets = async (req, res) => {
   try {
-    const tickets = await Ticket.find()
+    const query = req.user.role === "admin" ? {} : { user: req.user.id };
+
+    const tickets = await Ticket.find(query)
       .populate("user", "name email")
       .sort({ createdAt: -1 });
 
@@ -57,10 +154,10 @@ export const getTickets = async (req, res) => {
 // ✅ GET SINGLE TICKET
 export const getTicketById = async (req, res) => {
   try {
-    const ticket = await Ticket.findById(req.params.id).populate(
-      "user",
-      "name email"
-    );
+    const query = { _id: req.params.id };
+    if (req.user.role !== "admin") query.user = req.user.id;
+
+    const ticket = await Ticket.findOne(query).populate("user", "name email");
 
     if (!ticket) {
       return res.status(404).json({ message: "Ticket not found" });
@@ -77,7 +174,10 @@ export const addReply = async (req, res) => {
   try {
     const { text } = req.body;
 
-    const ticket = await Ticket.findById(req.params.id);
+    const query = { _id: req.params.id };
+    if (req.user.role !== "admin") query.user = req.user.id;
+
+    const ticket = await Ticket.findOne(query);
 
     if (!ticket) {
       return res.status(404).json({ message: "Ticket not found" });
@@ -110,7 +210,10 @@ export const updateTicket = async (req, res) => {
   try {
     const { status } = req.body;
 
-    const ticket = await Ticket.findById(req.params.id);
+    const query = { _id: req.params.id };
+    if (req.user.role !== "admin") query.user = req.user.id;
+
+    const ticket = await Ticket.findOne(query);
 
     if (!ticket) {
       return res.status(404).json({ message: "Ticket not found" });

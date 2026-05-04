@@ -6,6 +6,7 @@ const userSchema = mongoose.Schema(
     email: { type: String, unique: true },
     password: String,
     role: { type: String, default: "user" },
+    tenantId: { type: String, unique: true, sparse: true },
   },
   { timestamps: true }
 );

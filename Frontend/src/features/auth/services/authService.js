@@ -11,3 +11,8 @@ export const loginUser = async (data) => {
   const res = await API.post("/auth/login", data);
   return res.data;
 };
+
+export const createTenantId = async () => {
+  const res = await API.post("/auth/tenant-id");
+  return res.data;
+};

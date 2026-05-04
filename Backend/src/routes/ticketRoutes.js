@@ -1,9 +1,11 @@
 import express from "express";
 import protect from "../middleware/authMiddleware.js";
+import widgetAuth from "../middleware/aiWidget.middleware.js";
 
 import {
   getTickets,
   createTicket,
+  createWidgetTicket,
   getTicketById,
   addReply,
   updateTicket,
@@ -13,6 +15,7 @@ const router = express.Router();
 
 router.get("/", protect, getTickets);
 router.post("/", protect, createTicket);
+router.post("/widget", widgetAuth, createWidgetTicket);
 
 // 🔥 NEW ROUTES
 router.get("/:id", protect, getTicketById);

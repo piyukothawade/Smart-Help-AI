@@ -4,6 +4,11 @@ const ticketSchema = mongoose.Schema(
   {
     title: String,
     status: { type: String, default: "open" },
+    priority: { type: String, default: "low" },
+    category: { type: String, default: "other" },
+    source: { type: String, default: "app" },
+    visitorId: String,
+    tenantId: String,
 
     user: {
       type: mongoose.Schema.Types.ObjectId,
